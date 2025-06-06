@@ -1,3 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EthereumX Legal RAG AI Interface with  AIXIAM Assistant</title>
+  <link rel="icon" type="image/png" href="https://avatars.githubusercontent.com/u/178011932?s=200&amp;v=4" />
+  <style>
+    :root {
+      --bg-dark: #121212;
+      --bg-darker: #0d0d0d;
+      --bg-light: #1e1e1e;
+      --primary-color: #27ae60;
+      --accent: #3cdc64;
+      --text-color: #ecf0f1;
+      --secondary-text: #bbc9d5;
+      --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      --border-radius: 12px;
+      --transition-speed: 0.3s;
+      --box-shadow-accent: 0 0 12px rgba(60, 220, 100, 0.75);
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: var(--font-family);
+      background-color: var(--bg-dark);
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    nav {
+      background-color: var(--bg-darker);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      height: 60px;
+      box-shadow: 0 2px 7px rgba(0, 220, 120, 0.3);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      justify-content: space-between;
+    }
+    nav .brand {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    nav .brand img {
+      height: 36px;
+      width: 36px;
+      border-radius: 50%;
+      filter: drop-shadow(0 0 3px var(--primary-color));
+    }
+    nav .voice-customize {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: var(--text-color);
+      font-size: 0.95rem;
+    }
+    nav label {
+      display: flex;
+      flex-direction: column;
+      font-weight: 600;
+      color: var(--secondary-text);
+    }
+    nav select, nav input[type=range] {
+      background-color: var(--bg-light);
+      color: var(--text-color);
+      border: 1px solid #2ea44f;
+      border-radius: 6px;
+      padding: 4px 6px;
+      font-size: 1rem;
+      margin-top: 3px;
+      min-width: 105px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    nav select:hover, nav input[type=range]:hover {
+      background-color: #2ea44f22;
+    }
+    main {
+      flex: 1;
+      max-width: 1220px;
+      margin: 24px auto 36px;
+      width: 95%;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: auto auto auto;
+      gap: 22px;
+      color: var(--text-color);
+      min-height: 1020px;
+    }
+    section.panel {
+      background-color: var(--bg-light);
+      padding: 22px;
+      border-radius: var(--border-radius);
+      box-shadow: 0 0 16px var(--box-shadow-accent);
+      display: flex;
+      flex-direction: column;
+    }
+    #left-panel {
+      grid-column: 1 / span 2;
+      display: flex;
+      flex-direction: column;
+    }
+    #middle-panel {
+      grid-column: 3 / span 1;
+      overflow-y: auto;
+    }
+    #right-panel {
+      grid-column: 4 / span 1;
+      overflow-y: auto;
+    }
+    #court-reporter-panel {
+      grid-column: 1 / span 2;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    #expense-tracker-panel {
+      grid-column: 3 / span 2;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    #emotional-pulse-panel {
+      grid-column: 1 / span 4;
+      max-height: 360px;
+      overflow-y: auto;
+    }
+    label.tooltip {
+      cursor: help;
+      position: relative;
+      color: var(--primary-color);
+      font-weight: 600;
+      user-select: none;
+    }
+    label.tooltip .tooltiptext {
+      visibility: hidden;
+      width: 260px;
+      background-color: var(--primary-color);
+      color: #111;
+      text-align: center;
+      border-radius: 7px;
+      padding: 8px 12px;
+      position: absolute;
+      z-index: 10;
+      bottom: 150%;
+      left: 50%;
+      margin-left: -130px;
+      font-size: 0.9rem;
+      line-height: 1.4rem;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+    label.tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+    textarea, input[type=text], select, input[type=number], input[type=date] {
+      font-family: var(--font-family);
+      font-size: 1rem;
+      border: none;
+      border-radius: var(--border-radius);
+      padding: 12px 16px;
+      background-color: var(--bg-darker);
+      color: var(--text-color);
+      box-shadow: inset 0 0 14px rgba(0,0,0,0.8);
+      resize: vertical;
+      width: 100%;
+      margin-top: 8px;
+      margin-bottom: 12px;
+      transition: box-shadow 0.25s ease;
+    }
+    textarea:focus, input[type=text]:focus, select:focus, input[type=number]:focus, input[type=date]:focus {
+      outline: none;
+      box-shadow: inset 0 0 18px var(--primary-color);
+    }
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      margin: 14px 0;
+      flex-wrap: wrap;
+    }
+    button {
+      background-color: var(--primary-color);
+      color: #111;
+      padding: 14px 24px;
+      border: none;
+      font-weight: 700;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      font-size: 1.15rem;
+      box-shadow: 0 0 18px rgba(39, 220, 100, 0.75);
+      user-select: none;
+      transition: background-color 0.25s ease;
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      min-width: 130px;
+      letter-spacing: 0.05rem;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    button:hover:not(:disabled) {
+      background-color: #1ecc56;
+    }
+    #response {
+      margin-top: 22px;
+      background-color: var(--bg-darker);
+      border-radius: var(--border-radius);
+      padding: 20px;
+      font-size: 1.1rem;
+      line-height: 1.6;
+      min-height: 220px;
+      white-space: pre-wrap;
+      overflow-y: auto;
+      color: var(--text-color);
+      box-shadow: var(--box-shadow-accent);
+      user-select: text;
+      flex-grow: 1;
+      display: block;
+    }
+    #statusMessage {
+      margin-top: 14px;
+      color: var(--accent);
+      font-style: italic;
+      font-size: 1rem;
+      min-height: 22px;
+      user-select: none;
+    }
+    #docsHeader, #courtReporterHeader, #lawComparisonHeader, #expenseTrackerHeader, #emotionalPulseHeader {
+      color: var(--primary-color);
+      font-weight: 700;
+      margin-bottom: 14px;
+      border-bottom: 3px solid var(--primary-color);
+      padding-bottom: 6px;
+      user-select: none;
+    }
+    ul.docs-list, ul.notes-list, ul.expense-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      max-height: 280px;
+      overflow-y: auto;
+      flex-grow: 1;
+    }
+    ul.docs-list li, ul.notes-list li, ul.expense-list li {
+      background-color: var(--bg-light);
+      margin-bottom: 12px;
+      padding: 14px 18px;
+      border-radius: var(--border-radius);
+      border-left: 5px solid var(--primary-color);
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      color: var(--text-color);
+      font-size: 1rem;
+      user-select: text;
+    }
+    ul.docs-list li:hover, ul.notes-list li:hover, ul.expense-list li:hover {
+      background-color: #2e7d32;
+    }
+    ul.docs-list li .title, ul.notes-list li .title, ul.expense-list li .title {
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    ul.docs-list li .snippet, ul.notes-list li .snippet, ul.expense-list li .snippet {
+      font-size: 0.93rem;
+      color: var(--secondary-text);
+      line-height: 1.4;
+    }
+    #comparisonArea {
+      background-color: var(--bg-light);
+      border-radius: var(--border-radius);
+      box-shadow: 0 0 14px rgba(39, 220, 100, 0.5);
+      padding: 22px;
+      max-height: 620px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    h3 {
+      margin-top: 0;
+      color: var(--primary-color);
+      user-select: none;
+    }
+    .state-selectors {
+      display: flex;
+      gap: 18px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+    .state-selectors label {
+      color: var(--text-color);
+      font-weight: 600;
+      display: flex;
+      flex-direction: column;
+      font-size: 1rem;
+      user-select: none;
+    }
+    .state-selectors select {
+      margin-top: 8px;
+      background-color: var(--bg-darker);
+      color: var(--text-color);
+      border: 1px solid #2ea44f;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 1rem;
+      min-width: 150px;
+      cursor: pointer;
+      transition: background-color 0.25s ease;
+    }
+    .state-selectors select:hover {
+      background-color: #2ea44f22;
+    }
+    .law-comparison-table {
+      border-collapse: collapse;
+      width: 100%;
+      color: var(--text-color);
+    }
+    .law-comparison-table th, .law-comparison-table td {
+      border: 1px solid #2ea44f;
+      padding: 14px 16px;
+      text-align: left;
+      vertical-align: top;
+      font-size: 1rem;
+    }
+    .law-comparison-table th {
+      background-color: var(--bg-darker);
+      color: var(--primary-color);
+      user-select: none;
+    }
+    .difference {
+      background-color: #2e7d327a;
+    }
+    #chartContainer {
+      width: 100%;
+      height: 280px;
+      background-color: var(--bg-darker);
+      border-radius: var(--border-radius);
+      padding: 10px;
+      box-shadow: inset 0 0 14px rgba(39, 220, 100, 0.5);
+      margin-top: 0;
+    }
+    /* Responsive */
+    @media (max-width: 1200px) {
+      main {
+        display: flex;
+        flex-direction: column;
+        max-width: 90%;
+      }
+      section.panel {
+        max-height: none !important;
+      }
+    }
+
+    /* === J.A.R.V.I.S. AIXIAM Chat specific styles === */
+    #jarvis-chat {
+      height: 460px;
+      background: var(--bg-darker);
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow-accent);
+      display: flex;
+      flex-direction: column;
+      user-select: text;
+      border: 2px solid var(--primary-color);
+    }
+    #chat-header {
+      padding: 16px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 1.45rem;
+      color: var(--primary-color);
+      border-bottom: 2px solid var(--primary-color);
+      letter-spacing: 3px;
+      font-family: var(--font-family);
+      user-select: none;
+      text-shadow: 0 0 6px #28ff75;
+    }
+    #chat-window {
+      flex: 1;
+      padding: 14px 20px;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+      font-family: var(--font-family);
+      font-size: 1.05rem;
+      color: var(--primary-color);
+      background: #101b0f;
+      border-radius: 0 0 var(--border-radius) var(--border-radius);
+      user-select: text;
+    }
+    .msg {
+      max-width: 78%;
+      margin-bottom: 16px;
+      padding: 14px 20px;
+      border-radius: var(--border-radius);
+      position: relative;
+      line-height: 1.5;
+      word-wrap: break-word;
+      user-select: text;
+      box-shadow: 0 0 8px #22ff5f55;
+    }
+    .msg.user {
+      margin-left: auto;
+      background: var(--primary-color);
+      box-shadow: 0 0 12px var(--primary-color);
+      color: #222;
+      border-bottom-right-radius: 6px;
+    }
+    .msg.jarvis {
+      margin-right: auto;
+      background: #0b5528;
+      box-shadow: 0 0 15px var(--accent);
+      color: var(--accent);
+      border-bottom-left-radius: 6px;
+      font-style: italic;
+    }
+    .msg.loading {
+      font-style: normal;
+      font-weight: 600;
+      animation: pulse 1.7s infinite ease-in-out;
+      color: var(--accent);
+    }
+    @keyframes pulse {
+      0%, 100% {opacity:1;}
+      50% {opacity:0.4;}
+    }
+    #input-area {
+      border-top: 2px solid var(--primary-color);
+      padding: 16px 18px;
+      background: var(--bg-darker);
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+    #text-input {
+      flex: 1;
+      padding: 14px 18px;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: var(--border-radius);
+      background-color: #103310;
+      color: var(--primary-color);
+      box-shadow: inset 0 0 10px rgba(34, 255, 122, 0.6);
+      font-family: var(--font-family);
+      transition: box-shadow var(--transition-speed);
+    }
+    #text-input:focus {
+      outline: none;
+      box-shadow: inset 0 0 18px var(--primary-color);
+    }
+    #btn-send, #btn-speak {
+      background: var(--primary-color);
+      border: none;
+      color: #222;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 1.3rem;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      box-shadow: 0 0 12px var(--primary-color);
+      transition: background-color var(--transition-speed);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #btn-send:hover, #btn-speak:hover {
+      background: #22ff62;
+      box-shadow: 0 0 18px #22ff62;
+    }
+    #btn-send:disabled {
+      background: #2a7a32;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<nav>
+  <div class="brand" aria-label="EthereumX Legal AI Interface">
+    <img src="https://avatars.githubusercontent.com/u/178011932?s=200&amp;v=4" alt="EthereumX Logo" />
+    EthereumX Legal AI
+  </div>
+  <div class="voice-customize" aria-label="Assistant voice customization">
+    <label for="voiceSelect">Voice
+      <select id="voiceSelect" aria-label="Select voice"></select>
+    </label>
+    <label for="pitchRange">Pitch
+      <input type="range" id="pitchRange" min="0.5" max="2" step="0.1" value="1" aria-valuemin="0.5" aria-valuemax="2" />
+    </label>
+    <label for="rateRange">Speed
+      <input type="range" id="rateRange" min="0.5" max="2" step="0.1" value="1" aria-valuemin="0.5" aria-valuemax="2" />
+    </label>
+  </div>
+</nav>
+
+<main>
+
+  <!-- Left panel: J.A.R.V.I.S. AIXIAM chat interface -->
+  <section id="left-panel" class="panel" aria-label="J.A.R.V.I.S. AIXIAM Legal Assistant Chat">
+    <div id="jarvis-chat" role="region" aria-live="polite" aria-atomic="true" aria-label="J.A.R.V.I.S. AIXIAM legal assistant chat interface">
+      <header id="chat-header">J.A.R.V.I.S. AIXIAM</header>
+      <main id="chat-window" tabindex="0"></main>
+      <section id="input-area">
+        <button id="btn-speak" aria-label="Start speech input" title="Speak your query" type="button" aria-pressed="false" aria-live="polite">&#128264;</button>
+        <input type="text" id="text-input" placeholder="Ask your legal question..." aria-label="Type your legal question" autocomplete="off" />
+        <button id="btn-send" title="Send query" type="button" aria-label="Send message" disabled>&#10148;</button>
+      </section>
+    </div>
+  </section>
+
+  <!-- Middle panel: Related legal documents -->
+  <section id="middle-panel" class="panel" aria-label="Related legal documents and topics">
+    <h3 id="docsHeader">Related Legal Documents</h3>
+    <ul class="docs-list" id="docsList" role="list" tabindex="0"></ul>
+  </section>
+
+  <!-- Right panel: Law comparison -->
+  <section id="right-panel" class="panel" aria-label="Law comparison by state legislature">
+    <h3>Compare Laws by State Legislature</h3>
+    <div id="comparisonArea" role="region" aria-live="polite" aria-label="Law Comparison Section">
+      <div class="state-selectors">
+        <label for="stateASelect">State A
+          <select id="stateASelect" aria-label="Select first state for comparison"></select>
+        </label>
+        <label for="stateBSelect">State B
+          <select id="stateBSelect" aria-label="Select second state for comparison"></select>
+        </label>
+      </div>
+      <button id="compareBtn" aria-label="Compare selected states laws">Compare Laws</button>
+      <div id="comparisonResult" tabindex="0" style="margin-top: 15px;"></div>
+    </div>
+  </section>
+
+  <!-- Court Reporter as before -->
+  <section id="court-reporter-panel" class="panel" aria-label="Court Reporter notes application">
+    <h3 id="courtReporterHeader">Court Reporter - Notes by Speech-to-Text</h3>
+    <form id="noteForm" aria-label="Add a new court note">
+      <label for="noteSubject">Subject
+        <input type="text" id="noteSubject" placeholder="Subject (e.g. Contract Dispute)" required />
+      </label>
+      <label for="noteCategory">Category
+        <select id="noteCategory" required>
+          <option value="" disabled selected>Select category</option>
+          <option value="Contract">Contract</option>
+          <option value="Criminal Law">Criminal Law</option>
+          <option value="Property">Property</option>
+          <option value="Environmental">Environmental</option>
+          <option value="IP">Intellectual Property</option>
+          <option value="Courtroom Procedure">Courtroom Procedure</option>
+          <option value="General">General</option>
+        </select>
+      </label>
+      <label for="caseReference">Case Reference
+        <input type="text" id="caseReference" placeholder="Case Identifier or Name" />
+      </label>
+      <label for="noteContent" class="tooltip"
+        >Note Content
+        <span class="tooltiptext">Use microphone button below to dictate notes or type manually.</span>
+      </label>
+      <textarea id="noteContent" rows="5" placeholder="Start dictating or type your note here..." required></textarea>
+      <div class="btn-group" role="group" aria-label="Note input controls">
+        <button type="button" id="noteSpeakBtn" aria-pressed="false" aria-label="Toggle speech-to-text note input">🎤 Dictate</button>
+        <button type="submit" id="saveNoteBtn">Save Note</button>
+        <button type="button" id="clearNoteBtn" aria-label="Clear note input">Clear</button>
+      </div>
+    </form>
+    <section aria-label="Saved notes">
+      <h4>Saved Notes</h4>
+      <label for="filterCategory">Filter by Category</label>
+      <select id="filterCategory" aria-label="Filter notes by category">
+        <option value="all" selected>All</option>
+        <option value="Contract">Contract</option>
+        <option value="Criminal Law">Criminal Law</option>
+        <option value="Property">Property</option>
+        <option value="Environmental">Environmental</option>
+        <option value="IP">Intellectual Property</option>
+        <option value="Courtroom Procedure">Courtroom Procedure</option>
+        <option value="General">General</option>
+      </select>
+      <label for="filterCase">Filter by Case</label>
+      <input type="text" id="filterCase" placeholder="Filter notes by case reference" aria-label="Filter notes by case reference" />
+      <ul id="notesList" class="notes-list" role="list" tabindex="0"></ul>
+    </section>
+  </section>
+
+  <!-- Expense Tracker -->
+  <section id="expense-tracker-panel" class="panel" aria-label="Expense Tracker for Attorneys">
+    <h3 id="expenseTrackerHeader">Attorney Expense Tracker</h3>
+    <form id="expenseForm" aria-label="Add a new expense">
+      <label for="expenseCase">Case Reference
+        <input type="text" id="expenseCase" placeholder="Case Identifier or Name" required />
+      </label>
+      <label for="expenseCategory">Category
+        <select id="expenseCategory" required>
+          <option value="" disabled selected>Select expense category</option>
+          <option>Drive Time</option>
+          <option>Consultations</option>
+          <option>Phone Calls</option>
+          <option>Text</option>
+          <option>Email</option>
+          <option>Travel</option>
+          <option>Misc.</option>
+          <option>Court Appearance</option>
+          <option>Case Evaluation</option>
+          <option>Document Preparation</option>
+          <option>Correspondence</option>
+          <option>Meeting</option>
+          <option>Depositions</option>
+          <option>Research</option>
+          <option>Other</option>
+        </select>
+      </label>
+      <label for="expenseAmount">Amount (USD)
+        <input id="expenseAmount" type="number" min="0" step="0.01" placeholder="Amount in dollars" required />
+      </label>
+      <label for="expenseDate">Date
+        <input id="expenseDate" type="date" required />
+      </label>
+      <label for="expenseNotes">Notes (optional)
+        <textarea id="expenseNotes" rows="3" placeholder="Additional details..."></textarea>
+      </label>
+      <button type="submit" id="addExpenseBtn">Add Expense</button>
+    </form>
+    <h4>Expenses for Selected Case</h4>
+    <label for="filterExpenseCase">Select Case to View Expenses</label>
+    <select id="filterExpenseCase" aria-label="Filter expenses by case"></select>
+    <ul id="expenseList" class="expense-list" role="list" tabindex="0" aria-live="polite" aria-label="List of expenses"></ul>
+    <div id="expenseSummary" aria-live="polite" aria-atomic="true"></div>
+    <div id="chartContainer">
+      <canvas id="expenseChart" aria-label="Expense breakdown chart" role="img"></canvas>
+    </div>
+  </section>
+
+  <!-- Emotional Pulse Panel -->
+  <section id="emotional-pulse-panel" class="panel" aria-label="Emotional Pulse for Legal Subjects">
+    <h3 id="emotionalPulseHeader">Emotional Pulse - Historical &amp; Social Impact</h3>
+    <label for="pulseSubject">Select Legal Subject
+      <input type="text" id="pulseSubjectSearch" placeholder="Search subject..." aria-label="Search subject"/>
+      <select id="pulseSubject" aria-label="Select legal subject"></select>
+    </label>
+    <section>
+      <h4>Historical Context</h4>
+      <div id="historicalContext" style="background-color: var(--bg-darker); border-radius: var(--border-radius); padding: 15px; min-height: 80px; color: var(--text-color); margin-bottom: 15px; overflow-y: auto;"></div>
+    </section>
+    <section>
+      <h4>Social Impact Trend (Emotional Pulse)</h4>
+      <div id="chartContainerPulse">
+        <canvas id="pulseChart" aria-label="Emotional pulse trend chart" role="img"></canvas>
+      </div>
+    </section>
+  </section>
+
+</main>
+
+<footer>
+  Powered by EthereumX Token &#8226; &copy; 2024 Legal RAG AI Interface and J.A.R.V.I.S. AIXIAM
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+(() => {
+  // -- Voice and speech setup --
+  const synth = window.speechSynthesis || null;
+  let voices = [];
+  let selectedVoice = null;
+  const voiceSelect = document.getElementById('voiceSelect');
+  const pitchRange = document.getElementById('pitchRange');
+  const rateRange = document.getElementById('rateRange');
+
+  //  AIXIAM Chat Elements
+  const chatWindow = document.getElementById('chat-window');
+  const input = document.getElementById('text-input');
+  const btnSend = document.getElementById('btn-send');
+  const btnSpeak = document.getElementById('btn-speak');
+  let recognition;
+  let recognizing = false;
+
+  // Court Reporter variables
+  const noteSpeakBtn = document.getElementById('noteSpeakBtn');
+  const noteSubject = document.getElementById('noteSubject');
+  const noteCategory = document.getElementById('noteCategory');
+  const caseReference = document.getElementById('caseReference');
+  const noteContent = document.getElementById('noteContent');
+  const noteForm = document.getElementById('noteForm');
+  const notesList = document.getElementById('notesList');
+  const filterCategory = document.getElementById('filterCategory');
+  const filterCase = document.getElementById('filterCase');
+
+  // Expense Tracker variables
+  const expenseForm = document.getElementById('expenseForm');
+  const expenseCase = document.getElementById('expenseCase');
+  const expenseCategory = document.getElementById('expenseCategory');
+  const expenseAmount = document.getElementById('expenseAmount');
+  const expenseDate = document.getElementById('expenseDate');
+  const expenseNotes = document.getElementById('expenseNotes');
+  const filterExpenseCase = document.getElementById('filterExpenseCase');
+  const expenseList = document.getElementById('expenseList');
+  const expenseSummary = document.getElementById('expenseSummary');
+  const expenseChartCtx = document.getElementById('expenseChart').getContext('2d');
+
+  // Emotional Pulse variables
+  const pulseSubjectSearch = document.getElementById('pulseSubjectSearch');
+  const pulseSubject = document.getElementById('pulseSubject');
+  const historicalContext = document.getElementById('historicalContext');
+  const pulseChartCtx = document.getElementById('pulseChart').getContext('2d');
+
+  // Load voices for speech synthesis
+  function loadVoices() {
+    if (!synth) return;
+    voices = synth.getVoices();
+    if (voices.length === 0) {
+      setTimeout(loadVoices, 150);
+      return;
+    }
+    voiceSelect.innerHTML = '';
+    voices.forEach((voice, i) => {
+      const option = document.createElement('option');
+      option.value = i;
+      option.textContent = `${voice.name} (${voice.lang})${voice.default ? ' — Default' : ''}`;
+      voiceSelect.appendChild(option);
+    });
+    selectedVoice = voices[0];
+    voiceSelect.value = 0;
+  }
+  loadVoices();
+  if (synth && 'onvoiceschanged' in synth) {
+    synth.onvoiceschanged = loadVoices;
+  }
+  voiceSelect.addEventListener('change', () => {
+    selectedVoice = voices[voiceSelect.value];
+  });
+
+  // J.A.R.V.I.S. AIXIAM Chat Logic
+  function jarvisMessage(msg) {
+    const div = document.createElement('div');
+    div.className = 'msg jarvis';
+    div.textContent = msg;
+    chatWindow.appendChild(div);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  }
+  function userMessage(msg) {
+    const div = document.createElement('div');
+    div.className = 'msg user';
+    div.textContent = msg;
+    chatWindow.appendChild(div);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  }
+  function loadingMessage() {
+    const div = document.createElement('div');
+    div.className = 'msg jarvis loading';
+    div.textContent = 'Processing your request...';
+    chatWindow.appendChild(div);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+    return div;
+  }
+  function generateResponse(text) {
+    text = text.toLowerCase();
+    // Basic keyword-based responses - can integrate API scraping here for real data
+    if(text.includes('hello') || text.includes('hi')){
+      return "Greetings! How may I assist you with your legal inquiries today?";
+    }
+    if(text.includes('contract')){
+      return "Contracts are fascinating! Let me gather insights for you.";
+    }
+    if(text.includes('court')){
+      return "Navigating the courtroom with precision is vital. What assistance do you seek?";
+    }
+    if(text.includes('lawyer') || text.includes('attorney')){
+      return "Your trust in me is appreciated. How can we tackle your legal questions?";
+    }
+    if(text.includes('thank')){
+      return "Happy to help — that’s what  AIXIAM does best.";
+    }
+    if(text.trim() === '') {
+      return "Please type or speak your question; I’m ready when you are!";
+    }
+    // Placeholder for API Scraping / Data Retrieval here...
+    return "Analyzing your query with EthereumX’s AI knowledge base — one moment please.";
+  }
+  function speak(text) {
+    if(!synth) return;
+    if (synth.speaking) synth.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US';
+    utterance.pitch = parseFloat(pitchRange.value);
+    utterance.rate = parseFloat(rateRange.value);
+    if(selectedVoice) utterance.voice = selectedVoice;
+    synth.speak(utterance);
+  }
+  input.addEventListener('input', () => {
+    btnSend.disabled = input.value.trim() === '';
+  });
+  btnSend.addEventListener('click', () => {
+    const txt = input.value.trim();
+    if(txt === '') return;
+    processJarvisQuery(txt);
+  });
+  input.addEventListener('keydown', e => {
+    if(e.key === 'Enter' && !e.shiftKey && !btnSend.disabled){
+      e.preventDefault();
+      btnSend.click();
+    }
+  });
+  btnSpeak.addEventListener('click', () => {
+    if(!recognition) return;
+    if(recognizing){
+      recognition.stop();
+    } else {
+      recognition.start();
+    }
+  });
+  function processJarvisQuery(userText) {
+    userMessage(userText);
+    input.value = '';
+    btnSend.disabled = true;
+    const loading = loadingMessage();
+    setTimeout(() => {
+      loading.remove();
+      const reply = generateResponse(userText);
+      jarvisMessage(reply);
+      speak(reply);
+      btnSend.disabled = false;
+    }, 1500);
+  }
+  function initRecognition() {
+    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+      btnSpeak.disabled = true;
+      btnSpeak.title = "Speech recognition is not supported in your browser.";
+      return null;
+    }
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recog = new SpeechRecognition();
+    recog.lang = 'en-US';
+    recog.interimResults = false;
+    recog.continuous = false;
+    recog.onstart = () => {
+      recognizing = true;
+      btnSpeak.setAttribute('aria-pressed', 'true');
+      btnSpeak.textContent = '⏹';
+      jarvisMessage('Listening... Please speak your question.');
+    };
+    recog.onend = () => {
+      recognizing = false;
+      btnSpeak.setAttribute('aria-pressed', 'false');
+      btnSpeak.textContent = '🔊';
+    };
+    recog.onerror = (event) => {
+      recognizing = false;
+      btnSpeak.setAttribute('aria-pressed', 'false');
+      btnSpeak.textContent = '🔊';
+      jarvisMessage(`Oops, I had trouble hearing you: ${event.error}`);
+    };
+    recog.onresult = (event) => {
+      const transcript = event.results[0][0].transcript.trim();
+      processJarvisQuery(transcript);
+    };
+    return recog;
+  }
+  recognition = initRecognition();
+
+})();
+</script>
+
+</body>
+</html>
+
+
+
 <!doctype html>
 <html lang="en">
   <head>

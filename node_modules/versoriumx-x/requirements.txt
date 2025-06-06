@@ -1,0 +1,12 @@
+# Dev environment
+pip
+autopep8
+https://drive.google.com/drive/folders/1czgHuxXHzMAVIytcbPeU--b4MgBTIfub?usp=drive_link
+pkgs.mailutils
+
+# App
+google-generativeai # Client library for the Gemini API
+Pillow # PIL image-loading library
+flask
+https://drive.google.com/drive/folders/1k-p-9LIsW1gO4xLwEKP3iUm5q4zHevNW?usp=drive_link
+pkgs.mailutils

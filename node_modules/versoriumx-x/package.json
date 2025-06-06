@@ -1,0 +1,32 @@
+{
+  "name": "versoriumx-x",
+  "version": "1.0.0",
+  "description": "Oden Code Development Engine with IronDomeSecurity-X",
+  "main": "index.js",
+  "scripts": {
+    "test": "run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VersoriumX/Oden-X.git"
+  },
+  "keywords": [
+    "Oden",
+    "IronDomeSecurity-X",
+    "EthereumX",
+    "Polygon",
+    "WrappedBitcoin",
+    "GenAI"
+  ],
+  "author": "~javaweh",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/VersoriumX/Oden-X/issues"
+  },
+  "homepage": "https://github.com/VersoriumX/Oden-X#readme",
+  "dependencies": {
+    "@maticnetwork/maticjs": "^3.9.2",
+    "irondome-security-x": "^1.0.0"
+  },
+  "devDependencies": {}
+}
