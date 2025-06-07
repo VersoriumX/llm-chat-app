@@ -35,6 +35,7 @@
     "test": "vitest"
   },
   "dependencies": {
+    "eslint": "^9.28.0",
     "versoriumx-hardhat": "^1.0.0",
     "versoriumx-x": "^1.0.0"
   }
