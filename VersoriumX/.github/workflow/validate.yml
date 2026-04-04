@@ -1,0 +1,19 @@
+name: Validate AI Gateway Schema
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  validate-schema:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Install dependencies
+        run: npm install -g ajv-cli
+      
+      - name: Validate metadata.json against schema
+        run: ajv validate -s schemas/gateway-schema.json -d metadata.json
